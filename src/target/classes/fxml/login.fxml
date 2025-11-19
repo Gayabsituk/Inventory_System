@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.k4j.lpg.controllers.LoginController"
+           styleClass="login-container">
+    
+    <!-- Gradient Background -->
+    <VBox alignment="CENTER" spacing="0" styleClass="gradient-background">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+    </VBox>
+    
+    <!-- Login Card -->
+    <VBox alignment="CENTER" spacing="20" maxWidth="450" maxHeight="600" styleClass="login-card">
+        <padding>
+            <Insets top="40" right="40" bottom="40" left="40"/>
+        </padding>
+        
+        <!-- Logo -->
+        <ImageView fx:id="logoImageView" fitWidth="120" fitHeight="120" preserveRatio="true"/>
+        
+        <!-- Title -->
+        <VBox alignment="CENTER" spacing="5">
+            <Label text="K4J LPG Center" styleClass="title-purple">
+                <font>
+                    <Font name="System Bold" size="20"/>
+                </font>
+            </Label>
+            <Label text="Inventory System" styleClass="title-main">
+                <font>
+                    <Font name="System Bold" size="28"/>
+                </font>
+            </Label>
+            <Label text="Enter your credentials to access the system" styleClass="subtitle">
+                <font>
+                    <Font size="13"/>
+                </font>
+            </Label>
+        </VBox>
+        
+        <VBox.margin>
+            <Insets top="10"/>
+        </VBox.margin>
+        
+        <!-- Login Form -->
+        <VBox spacing="20">
+            <!-- Username Field -->
+            <VBox spacing="8">
+                <Label text="Username">
+                    <font>
+                        <Font name="System Bold" size="13"/>
+                    </font>
+                </Label>
+                <TextField fx:id="usernameField" promptText="Enter your username" styleClass="form-input">
+                    <font>
+                        <Font size="14"/>
+                    </font>
+                </TextField>
+            </VBox>
+            
+            <!-- Password Field -->
+            <VBox spacing="8">
+                <Label text="Password">
+                    <font>
+                        <Font name="System Bold" size="13"/>
+                    </font>
+                </Label>
+                <PasswordField fx:id="passwordField" promptText="Enter your password" styleClass="form-input">
+                    <font>
+                        <Font size="14"/>
+                    </font>
+                </PasswordField>
+            </VBox>
+            
+            <!-- Error Label -->
+            <Label fx:id="errorLabel" styleClass="error-label" wrapText="true">
+                <font>
+                    <Font size="12"/>
+                </font>
+            </Label>
+            
+            <!-- Login Button -->
+            <Button fx:id="loginButton" text="Sign In" onAction="#handleLogin" 
+                    styleClass="primary-button" maxWidth="Infinity" minHeight="45">
+                <font>
+                    <Font name="System Bold" size="14"/>
+                </font>
+            </Button>
+            
+            <!-- Progress Indicator -->
+            <StackPane>
+                <ProgressIndicator fx:id="progressIndicator" maxWidth="40" maxHeight="40"/>
+            </StackPane>
+        </VBox>
+        
+        <VBox.margin>
+            <Insets top="10"/>
+        </VBox.margin>
+    </VBox>
+</StackPane>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.k4j.lpg.controllers.StaffDashboardController"
+      styleClass="dashboard-container" spacing="0">
+    
+    <!-- Header -->
+    <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20">
+        <Label text="K4J LPG Center" styleClass="header-title">
+            <font><Font name="System Bold" size="20"/></font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="welcomeLabel" styleClass="header-subtitle">
+            <font><Font size="13"/></font>
+        </Label>
+        <Button text="Logout" onAction="#handleLogout" styleClass="secondary-button"/>
+    </HBox>
+    
+    <!-- Content -->
+    <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS">
+        <padding><Insets top="20" right="30" bottom="20" left="30"/></padding>
+        
+        <VBox spacing="20">
+            <!-- Statistics Cards -->
+            <HBox spacing="20">
+                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                    <Label text="Total Products" styleClass="stat-label"/>
+                    <Label fx:id="totalProductsLabel" text="0" styleClass="stat-value">
+                        <font><Font name="System Bold" size="28"/></font>
+                    </Label>
+                </VBox>
+                
+                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+                    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+                    <Label text="Low Stock Items" styleClass="stat-label"/>
+                    <Label fx:id="lowStockLabel" text="0" styleClass="stat-value" style="-fx-text-fill: #bf3039;">
+                        <font><Font name="System Bold" size="28"/></font>
+                    </Label>
+                </VBox>
+            </HBox>
+            
+            <!-- Products Section -->
+            <VBox styleClass="card" spacing="15">
+                <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                
+                <!-- Toolbar -->
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="Products Inventory" styleClass="card-title">
+                        <font><Font name="System Bold" size="18"/></font>
+                    </Label>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <TextField fx:id="searchField" promptText="Search products..." styleClass="search-field"/>
+                    <Button text="Refresh" onAction="#handleRefresh" styleClass="secondary-button"/>
+                </HBox>
+                
+                <!-- Products Table -->
+                <TableView fx:id="productsTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="nameColumn" text="Product Name" prefWidth="250"/>
+                        <TableColumn fx:id="categoryColumn" text="Category" prefWidth="200"/>
+                        <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="120"/>
+                        <TableColumn fx:id="priceColumn" text="Price" prefWidth="150"/>
+                        <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="120"/>
+                    </columns>
+                </TableView>
+                
+                <Label text="Note: Items with quantity ≤ 20 are highlighted in red. Staff can only update quantities." 
+                       style="-fx-text-fill: #bf3039; -fx-font-size: 12px;"/>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox>
