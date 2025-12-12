@@ -1,9 +1,6 @@
 package com.k4j.lpg.models;
 
-/**
- * User model
- * Equivalent to User type in App.tsx
- */
+
 public class User {
     private String id;
     private String username;

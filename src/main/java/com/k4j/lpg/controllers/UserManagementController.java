@@ -18,10 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-/**
- * User Management Controller
- * Handles adding, editing, and deleting users
- */
+
 public class UserManagementController {
     
     private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);

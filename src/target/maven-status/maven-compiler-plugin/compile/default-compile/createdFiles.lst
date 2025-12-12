@@ -1,8 +1,6 @@
 com\k4j\lpg\controllers\AdminDashboardController$3.class
-css\styles.css
 com\k4j\lpg\utils\NetworkChecker.class
 com\k4j\lpg\controllers\UserManagementController$6.class
-fxml\staff_dashboard.fxml
 com\k4j\lpg\services\ApiService.class
 com\k4j\lpg\controllers\StaffDashboardController.class
 com\k4j\lpg\controllers\UserManagementController$2.class
@@ -17,13 +15,11 @@ com\k4j\lpg\Main.class
 com\k4j\lpg\controllers\AdminDashboardController$7.class
 com\k4j\lpg\controllers\AdminDashboardController$4.class
 com\k4j\lpg\controllers\LoginController$1.class
-fxml\admin_dashboard.fxml
 com\k4j\lpg\controllers\StaffDashboardController$6.class
 com\k4j\lpg\controllers\LoginController.class
 com\k4j\lpg\controllers\AdminDashboardController$11.class
 com\k4j\lpg\controllers\AdminDashboardController$5.class
 com\k4j\lpg\controllers\UserManagementController$1.class
-fxml\login.fxml
 com\k4j\lpg\controllers\AdminDashboardController$14.class
 com\k4j\lpg\controllers\StaffDashboardController$4.class
 com\k4j\lpg\tools\SeedLocalDb.class
@@ -40,7 +36,6 @@ com\k4j\lpg\controllers\StaffDashboardController$5.class
 com\k4j\lpg\models\User.class
 com\k4j\lpg\controllers\AdminDashboardController$2.class
 com\k4j\lpg\controllers\AdminDashboardController$6.class
-images\logo.png
 com\k4j\lpg\controllers\AdminDashboardController$13.class
 com\k4j\lpg\controllers\AdminDashboardController.class
 com\k4j\lpg\controllers\UserManagementController.class

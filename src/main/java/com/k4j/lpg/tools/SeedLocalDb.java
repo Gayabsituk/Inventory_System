@@ -24,9 +24,9 @@ public class SeedLocalDb {
 
             // Seed a few sample products
             List<Product> products = Arrays.asList(
-                    new Product(UUID.randomUUID().toString(), "Propane Cylinder 11kg", "Gas", 50, 1200.00),
-                    new Product(UUID.randomUUID().toString(), "Regulator", "Accessory", 150, 450.00),
-                    new Product(UUID.randomUUID().toString(), "Gas Hose 1m", "Accessory", 80, 150.00)
+                    new Product(UUID.randomUUID().toString(), "Propane Cylinder 11kg", "Gas", 50, 1200.00, 20),
+                    new Product(UUID.randomUUID().toString(), "Regulator", "Accessory", 150, 450.00, 20),
+                    new Product(UUID.randomUUID().toString(), "Gas Hose 1m", "Accessory", 80, 150.00, 20)
             );
 
             LocalDbService.cacheProducts(products);

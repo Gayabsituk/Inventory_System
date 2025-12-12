@@ -6,7 +6,11 @@ package com.k4j.lpg.utils;
  */
 public class Config {
     
-    // TODO: Replace with your actual Supabase project credentials
+    // IMPORTANT: Set your Supabase credentials here if you plan to use the
+    // remote API. Leave these as placeholders if you only use the local
+    // SQLite-based functionality. Do NOT commit real secrets to source
+    // control. Example values can be stored in an environment variable
+    // or external config for production.
     public static final String SUPABASE_PROJECT_ID = "your-project-id";
     public static final String SUPABASE_ANON_KEY = "your-anon-key";
     

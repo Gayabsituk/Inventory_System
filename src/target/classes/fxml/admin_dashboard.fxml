@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.image.ImageView?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -12,8 +13,10 @@
     
     <!-- Header -->
     <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="20">
-        <Label text="K4J LPG Center" styleClass="header-title">
-            <font><Font name="System Bold" size="20"/></font>
+        <ImageView fx:id="headerLogoImageView" fitHeight="120" fitWidth="120" preserveRatio="true" />
+        <Label text="K4J LPG Center" styleClass="header-title" alignment="CENTER_LEFT">
+            <padding><Insets top="30" bottom="0"/></padding>
+            <font><Font name="System Bold" size="24"/></font>
         </Label>
         <Region HBox.hgrow="ALWAYS"/>
         <Label fx:id="welcomeLabel" styleClass="header-subtitle">
@@ -80,8 +83,6 @@
                         <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="150"/>
                     </columns>
                 </TableView>
-                
-                <Label text="Note: Items with quantity ≤ 20 are highlighted in red" style="-fx-text-fill: #bf3039; -fx-font-size: 12px;"/>
             </VBox>
         </VBox>
     </ScrollPane>

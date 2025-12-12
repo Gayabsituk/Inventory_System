@@ -23,9 +23,29 @@ public class LocalDbService {
                     category TEXT NOT NULL,
                     quantity INTEGER NOT NULL,
                     price REAL NOT NULL,
+                    low_stock_threshold INTEGER DEFAULT 20,
                     last_updated INTEGER DEFAULT (strftime('%s','now'))
                 )
             """);
+
+            // Ensure `low_stock_threshold` column exists for older DBs
+            try (ResultSet rs = stmt.executeQuery("PRAGMA table_info('products')")) {
+                boolean hasThreshold = false;
+                while (rs.next()) {
+                    String colName = rs.getString("name");
+                    if ("low_stock_threshold".equalsIgnoreCase(colName)) {
+                        hasThreshold = true;
+                        break;
+                    }
+                }
+
+                if (!hasThreshold) {
+                    // Add the column with default value 20
+                    stmt.execute("ALTER TABLE products ADD COLUMN low_stock_threshold INTEGER DEFAULT 20");
+                    // Backfill existing rows (if any)
+                    stmt.executeUpdate("UPDATE products SET low_stock_threshold = 20 WHERE low_stock_threshold IS NULL");
+                }
+            }
             
             // Create users table
             stmt.execute("""
@@ -70,7 +90,7 @@ public class LocalDbService {
             }
             
             // Insert new data
-            String sql = "INSERT INTO products (id, name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO products (id, name, category, quantity, price, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 for (Product p : products) {
                     pstmt.setString(1, p.getId());
@@ -78,6 +98,7 @@ public class LocalDbService {
                     pstmt.setString(3, p.getCategory());
                     pstmt.setInt(4, p.getQuantity());
                     pstmt.setDouble(5, p.getPrice());
+                    pstmt.setInt(6, p.getLowStockThreshold());
                     pstmt.executeUpdate();
                 }
             }
@@ -101,7 +122,8 @@ public class LocalDbService {
                     rs.getString("name"),
                     rs.getString("category"),
                     rs.getInt("quantity"),
-                    rs.getDouble("price")
+                    rs.getDouble("price"),
+                    rs.getInt("low_stock_threshold")
                 );
                 products.add(p);
             }
@@ -169,34 +191,50 @@ public class LocalDbService {
     
     // Add new product
     public static Product addProduct(String name, String category, int quantity, double price) throws SQLException {
+        return addProduct(name, category, quantity, price, 20);
+    }
+    
+    // Add new product with low stock threshold
+    public static Product addProduct(String name, String category, int quantity, double price, int lowStockThreshold) throws SQLException {
         String productId = java.util.UUID.randomUUID().toString();
         
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(
-                 "INSERT INTO products (id, name, category, quantity, price) VALUES (?, ?, ?, ?, ?)")) {
+                 "INSERT INTO products (id, name, category, quantity, price, low_stock_threshold) VALUES (?, ?, ?, ?, ?, ?)")) {
             
             pstmt.setString(1, productId);
             pstmt.setString(2, name);
             pstmt.setString(3, category);
             pstmt.setInt(4, quantity);
             pstmt.setDouble(5, price);
+            pstmt.setInt(6, lowStockThreshold);
             pstmt.executeUpdate();
         }
         
-        return new Product(productId, name, category, quantity, price);
+        return new Product(productId, name, category, quantity, price, lowStockThreshold);
     }
     
     // Update product
     public static void updateProduct(String productId, String name, String category, int quantity, double price) throws SQLException {
+        updateProduct(productId, name, category, quantity, price, null);
+    }
+    
+    // Update product with low stock threshold
+    public static void updateProduct(String productId, String name, String category, int quantity, double price, Integer lowStockThreshold) throws SQLException {
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement pstmt = conn.prepareStatement(
-                 "UPDATE products SET name = ?, category = ?, quantity = ?, price = ? WHERE id = ?")) {
+                 "UPDATE products SET name = ?, category = ?, quantity = ?, price = ?, low_stock_threshold = COALESCE(?, low_stock_threshold) WHERE id = ?")) {
             
             pstmt.setString(1, name);
             pstmt.setString(2, category);
             pstmt.setInt(3, quantity);
             pstmt.setDouble(4, price);
-            pstmt.setString(5, productId);
+            if (lowStockThreshold != null) {
+                pstmt.setInt(5, lowStockThreshold);
+            } else {
+                pstmt.setNull(5, java.sql.Types.INTEGER);
+            }
+            pstmt.setString(6, productId);
             pstmt.executeUpdate();
         }
     }
@@ -225,7 +263,8 @@ public class LocalDbService {
                     rs.getString("name"),
                     rs.getString("category"),
                     rs.getInt("quantity"),
-                    rs.getDouble("price")
+                    rs.getDouble("price"),
+                    rs.getInt("low_stock_threshold")
                 );
             }
         }

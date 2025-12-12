@@ -2,27 +2,30 @@ package com.k4j.lpg.models;
 
 import javafx.beans.property.*;
 
-/**
- * Product model with JavaFX properties for TableView binding
- * Equivalent to Product type in App.tsx
- */
+
 public class Product {
     private final StringProperty id;
     private final StringProperty name;
     private final StringProperty category;
     private final IntegerProperty quantity;
     private final DoubleProperty price;
+    private final IntegerProperty lowStockThreshold;
     
     public Product() {
-        this("", "", "", 0, 0.0);
+        this("", "", "", 0, 0.0, 20);
     }
     
     public Product(String id, String name, String category, int quantity, double price) {
+        this(id, name, category, quantity, price, 20);
+    }
+    
+    public Product(String id, String name, String category, int quantity, double price, int lowStockThreshold) {
         this.id = new SimpleStringProperty(id);
         this.name = new SimpleStringProperty(name);
         this.category = new SimpleStringProperty(category);
         this.quantity = new SimpleIntegerProperty(quantity);
         this.price = new SimpleDoubleProperty(price);
+        this.lowStockThreshold = new SimpleIntegerProperty(lowStockThreshold);
     }
     
     // ID Property
@@ -90,9 +93,22 @@ public class Product {
         return price;
     }
     
-    // Helper method to check if product is low stock (<=20)
+    // Low Stock Threshold Property
+    public int getLowStockThreshold() {
+        return lowStockThreshold.get();
+    }
+    
+    public void setLowStockThreshold(int threshold) {
+        this.lowStockThreshold.set(threshold);
+    }
+    
+    public IntegerProperty lowStockThresholdProperty() {
+        return lowStockThreshold;
+    }
+    
+    // Helper method to check if product is low stock
     public boolean isLowStock() {
-        return quantity.get() <= 20;
+        return quantity.get() <= lowStockThreshold.get();
     }
     
     @Override

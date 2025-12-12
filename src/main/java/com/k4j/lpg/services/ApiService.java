@@ -26,10 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * API Service for communicating with Supabase backend
- * Equivalent to utils/api.ts
- */
+
 public class ApiService {
     
     private static final Logger logger = LoggerFactory.getLogger(ApiService.class);
@@ -240,7 +237,8 @@ public class ApiService {
                         productJson.get("name").getAsString(),
                         productJson.get("category").getAsString(),
                         productJson.get("quantity").getAsInt(),
-                        productJson.get("price").getAsDouble()
+                        productJson.get("price").getAsDouble(),
+                        productJson.has("low_stock_threshold") ? productJson.get("low_stock_threshold").getAsInt() : Config.LOW_STOCK_THRESHOLD
                     );
                     products.add(product);
                 });
@@ -297,16 +295,24 @@ public class ApiService {
     }
     
     /**
-     * Update product (Admin only)
+     * Update product (Admin only for full updates, Staff for quantity only)
      */
     public static ApiResponse<Product> updateProduct(String productId, Map<String, Object> updates) {
         try {
-            String name = (String) updates.get("name");
-            String category = (String) updates.get("category");
-            Integer quantity = (Integer) updates.get("quantity");
-            Double price = (Double) updates.get("price");
+            // Fetch current product to preserve fields not being updated
+            Product currentProduct = LocalDbService.getProductById(productId);
+            if (currentProduct == null) {
+                return new ApiResponse<>(false, null, "Product not found");
+            }
             
-            LocalDbService.updateProduct(productId, name, category, quantity, price);
+            // Use provided values or fall back to current values
+            String name = updates.containsKey("name") ? (String) updates.get("name") : currentProduct.getName();
+            String category = updates.containsKey("category") ? (String) updates.get("category") : currentProduct.getCategory();
+            Integer quantity = updates.containsKey("quantity") ? (Integer) updates.get("quantity") : currentProduct.getQuantity();
+            Double price = updates.containsKey("price") ? (Double) updates.get("price") : currentProduct.getPrice();
+            Integer lowStockThreshold = updates.containsKey("lowStockThreshold") ? (Integer) updates.get("lowStockThreshold") : currentProduct.getLowStockThreshold();
+            
+            LocalDbService.updateProduct(productId, name, category, quantity, price, lowStockThreshold);
             
             Product updatedProduct = LocalDbService.getProductById(productId);
             logger.info("Product updated: " + (updatedProduct != null ? updatedProduct.getName() : productId));

@@ -3,9 +3,11 @@ package com.k4j.lpg.controllers;
 import com.k4j.lpg.Main;
 import com.k4j.lpg.models.Product;
 import com.k4j.lpg.services.ApiService;
-import com.k4j.lpg.utils.Config;
+
 import com.k4j.lpg.utils.SessionManager;
 import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -15,7 +17,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,15 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Staff Dashboard Controller
- * Equivalent to StaffDashboard.tsx
- */
+
 public class StaffDashboardController {
     
     private static final Logger logger = LoggerFactory.getLogger(StaffDashboardController.class);
     
     @FXML private Label welcomeLabel;
+    @FXML private ImageView headerLogoImageView;
     @FXML private Label totalProductsLabel;
     @FXML private Label lowStockLabel;
     
@@ -51,6 +50,8 @@ public class StaffDashboardController {
         // Set welcome message
         String username = SessionManager.getInstance().getCurrentUsername();
         welcomeLabel.setText("Welcome, " + username + " (Staff)");
+        // Load header logo
+        loadHeaderLogo();
         
         // Setup table columns
         setupProductsTable();
@@ -66,6 +67,34 @@ public class StaffDashboardController {
         // Load data
         loadProducts();
     }
+
+    private void loadHeaderLogo() {
+        try {
+            var logoStream = getClass().getResourceAsStream("/images/Brent-Gaz-LOGO-copy.png");
+            if (logoStream == null) {
+                logoStream = getClass().getResourceAsStream("/images/logo.png");
+            }
+
+            if (logoStream != null) {
+                Image logo = new Image(logoStream);
+                if (!logo.isError()) {
+                    if (headerLogoImageView != null) {
+                        headerLogoImageView.setImage(logo);
+                        headerLogoImageView.setVisible(true);
+                    }
+                } else {
+                    logger.warn("Header logo error: " + logo.getException());
+                    if (headerLogoImageView != null) headerLogoImageView.setVisible(false);
+                }
+            } else {
+                logger.warn("Header logo not found in resources");
+                if (headerLogoImageView != null) headerLogoImageView.setVisible(false);
+            }
+        } catch (Exception e) {
+            logger.warn("Could not load header logo", e);
+            if (headerLogoImageView != null) headerLogoImageView.setVisible(false);
+        }
+    }
     
     private void setupProductsTable() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -73,18 +102,23 @@ public class StaffDashboardController {
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         
-        // Custom quantity cell factory to highlight low stock
+        // Custom quantity cell factory to highlight low stock using per-product threshold
         quantityColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(Integer quantity, boolean empty) {
                 super.updateItem(quantity, empty);
-                
+
                 if (empty || quantity == null) {
                     setText(null);
                     setStyle("");
                 } else {
                     setText(quantity.toString());
-                    if (quantity <= Config.LOW_STOCK_THRESHOLD) {
+                    Product rowProduct = getTableRow() == null ? null : (Product) getTableRow().getItem();
+                    boolean low = false;
+                    if (rowProduct != null) {
+                        low = rowProduct.isLowStock();
+                    }
+                    if (low) {
                         setStyle("-fx-text-fill: #bf3039; -fx-font-weight: bold;");
                     } else {
                         setStyle("");
@@ -132,18 +166,20 @@ public class StaffDashboardController {
             }
         });
         
-        // Row factory to highlight low stock
+        // Row factory to highlight low stock using per-product threshold (set style directly)
         productsTable.setRowFactory(tv -> new TableRow<>() {
             @Override
             protected void updateItem(Product product, boolean empty) {
                 super.updateItem(product, empty);
-                
+
                 if (empty || product == null) {
                     setStyle("");
-                } else if (product.isLowStock()) {
-                    getStyleClass().add("low-stock-row");
                 } else {
-                    getStyleClass().remove("low-stock-row");
+                    if (product.isLowStock()) {
+                        setStyle("-fx-background-color: #fef2f2;");
+                    } else {
+                        setStyle("");
+                    }
                 }
             }
         });

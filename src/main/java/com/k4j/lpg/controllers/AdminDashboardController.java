@@ -7,6 +7,8 @@ import com.k4j.lpg.services.ApiService;
 import com.k4j.lpg.utils.Config;
 import com.k4j.lpg.utils.SessionManager;
 import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -26,15 +28,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Admin Dashboard Controller
- * Equivalent to AdminDashboard.tsx
- */
+
 public class AdminDashboardController {
     
     private static final Logger logger = LoggerFactory.getLogger(AdminDashboardController.class);
     
     @FXML private Label welcomeLabel;
+    @FXML private ImageView headerLogoImageView;
     @FXML private Label totalProductsLabel;
     @FXML private Label lowStockLabel;
     @FXML private Label totalUsersLabel;
@@ -56,6 +56,8 @@ public class AdminDashboardController {
         // Set welcome message
         String username = SessionManager.getInstance().getCurrentUsername();
         welcomeLabel.setText("Welcome, " + username + " (Admin)");
+        // Load header logo
+        loadHeaderLogo();
         
         // Setup table columns
         setupProductsTable();
@@ -72,6 +74,34 @@ public class AdminDashboardController {
         loadProducts();
         loadUsers();
     }
+
+    private void loadHeaderLogo() {
+        try {
+            var logoStream = getClass().getResourceAsStream("/images/Brent-Gaz-LOGO-copy.png");
+            if (logoStream == null) {
+                logoStream = getClass().getResourceAsStream("/images/logo.png");
+            }
+
+            if (logoStream != null) {
+                Image logo = new Image(logoStream);
+                if (!logo.isError()) {
+                    if (headerLogoImageView != null) {
+                        headerLogoImageView.setImage(logo);
+                        headerLogoImageView.setVisible(true);
+                    }
+                } else {
+                    logger.warn("Header logo error: " + logo.getException());
+                    if (headerLogoImageView != null) headerLogoImageView.setVisible(false);
+                }
+            } else {
+                logger.warn("Header logo not found in resources");
+                if (headerLogoImageView != null) headerLogoImageView.setVisible(false);
+            }
+        } catch (Exception e) {
+            logger.warn("Could not load header logo", e);
+            if (headerLogoImageView != null) headerLogoImageView.setVisible(false);
+        }
+    }
     
     private void setupProductsTable() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -79,18 +109,23 @@ public class AdminDashboardController {
         quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
         
-        // Custom quantity cell factory to highlight low stock
+        // Custom quantity cell factory to highlight low stock using per-product threshold
         quantityColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(Integer quantity, boolean empty) {
                 super.updateItem(quantity, empty);
-                
+
                 if (empty || quantity == null) {
                     setText(null);
                     setStyle("");
                 } else {
                     setText(quantity.toString());
-                    if (quantity <= Config.LOW_STOCK_THRESHOLD) {
+                    Product rowProduct = getTableRow() == null ? null : (Product) getTableRow().getItem();
+                    boolean low = false;
+                    if (rowProduct != null) {
+                        low = rowProduct.isLowStock();
+                    }
+                    if (low) {
                         setStyle("-fx-text-fill: #bf3039; -fx-font-weight: bold;");
                     } else {
                         setStyle("");
@@ -146,18 +181,21 @@ public class AdminDashboardController {
             }
         });
         
-        // Row factory to highlight low stock
+        // Row factory to highlight low stock using per-product threshold (set style directly)
         productsTable.setRowFactory(tv -> new TableRow<>() {
             @Override
             protected void updateItem(Product product, boolean empty) {
                 super.updateItem(product, empty);
-                
+
                 if (empty || product == null) {
                     setStyle("");
-                } else if (product.isLowStock()) {
-                    getStyleClass().add("low-stock-row");
                 } else {
-                    getStyleClass().remove("low-stock-row");
+                    if (product.isLowStock()) {
+                        // use same background as .low-stock-row
+                        setStyle("-fx-background-color: #fef2f2;");
+                    } else {
+                        setStyle("");
+                    }
                 }
             }
         });
@@ -332,6 +370,8 @@ public class AdminDashboardController {
         TextField categoryField = new TextField(product.getCategory());
         Spinner<Integer> quantitySpinner = new Spinner<>(0, 10000, product.getQuantity());
         TextField priceField = new TextField(String.valueOf(product.getPrice()));
+        Spinner<Integer> thresholdSpinner = new Spinner<>(1, 10000, product.getLowStockThreshold());
+        thresholdSpinner.setEditable(true);
         
         grid.add(new Label("Name:"), 0, 0);
         grid.add(nameField, 1, 0);
@@ -341,6 +381,8 @@ public class AdminDashboardController {
         grid.add(quantitySpinner, 1, 2);
         grid.add(new Label("Price:"), 0, 3);
         grid.add(priceField, 1, 3);
+        grid.add(new Label("Low Stock Alert Threshold:"), 0, 4);
+        grid.add(thresholdSpinner, 1, 4);
         
         dialog.getDialogPane().setContent(grid);
         
@@ -350,6 +392,7 @@ public class AdminDashboardController {
                 updates.put("name", nameField.getText());
                 updates.put("category", categoryField.getText());
                 updates.put("quantity", quantitySpinner.getValue());
+                updates.put("lowStockThreshold", thresholdSpinner.getValue());
                 try {
                     updates.put("price", Double.parseDouble(priceField.getText()));
                 } catch (NumberFormatException e) {
@@ -527,7 +570,7 @@ public class AdminDashboardController {
             }
         });
         
-        usersTable.getColumns().addAll(usernameCol, roleCol, actionsCol);
+        usersTable.getColumns().setAll(java.util.Arrays.asList(usernameCol, roleCol, actionsCol));
         usersTable.setItems(usersList);
         
         mainPanel.getChildren().addAll(toolbar, usersTable);

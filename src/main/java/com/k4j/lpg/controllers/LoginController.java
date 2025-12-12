@@ -12,10 +12,7 @@ import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Login Page Controller
- * Equivalent to LoginPage.tsx
- */
+
 public class LoginController {
     
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
@@ -42,7 +39,11 @@ public class LoginController {
     public void initialize() {
         // Load logo - fix for resource loading
         try {
-            var logoStream = getClass().getResourceAsStream("/images/logo.png");
+            var logoStream = getClass().getResourceAsStream("/images/Brent-Gaz-LOGO-copy.png");
+            if (logoStream == null) {
+                logoStream = getClass().getResourceAsStream("/images/logo.png");
+            }
+
             if (logoStream != null) {
                 Image logo = new Image(logoStream);
                 if (!logo.isError()) {

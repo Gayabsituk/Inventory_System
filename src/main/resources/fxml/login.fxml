@@ -25,7 +25,7 @@
         </padding>
         
         <!-- Logo -->
-        <ImageView fx:id="logoImageView" fitWidth="120" fitHeight="120" preserveRatio="true"/>
+        <ImageView fx:id="logoImageView" fitWidth="180" fitHeight="180" preserveRatio="true"/>
         
         <!-- Title -->
         <VBox alignment="CENTER" spacing="5">
